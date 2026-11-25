@@ -263,8 +263,13 @@ class Resource(Generic[D]):
         contents = self.contents
         segments: list[int | str] = []
         for segment in unquote(pointer[1:]).split("/"):
-            if isinstance(contents, Sequence):
+            if isinstance(contents, Sequence) and not isinstance(
+                contents,
+                str,
+            ):
                 segment = int(segment)
+            elif not isinstance(contents, Mapping):
+                raise exceptions.PointerToNowhere(ref=pointer, resource=self)
             else:
                 segment = segment.replace("~1", "/").replace("~0", "~")
             try:

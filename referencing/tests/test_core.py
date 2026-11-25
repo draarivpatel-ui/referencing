@@ -681,6 +681,30 @@ class TestResource:
         resolver = Registry().resolver()
         assert resource.pointer("/foo/bar/0", resolver=resolver).contents == 3
 
+    def test_pointer_into_a_string(self):
+        resource = Resource.opaque(contents={"name": "xyz"})
+        resolver = Registry().resolver()
+        with pytest.raises(exceptions.PointerToNowhere):
+            resource.pointer("/name/0", resolver=resolver)
+
+    def test_pointer_into_a_string_with_non_numeric_segment(self):
+        resource = Resource.opaque(contents={"name": "xyz"})
+        resolver = Registry().resolver()
+        with pytest.raises(exceptions.PointerToNowhere):
+            resource.pointer("/name/foo", resolver=resolver)
+
+    def test_pointer_into_a_number(self):
+        resource = Resource.opaque(contents={"name": 12})
+        resolver = Registry().resolver()
+        with pytest.raises(exceptions.PointerToNowhere):
+            resource.pointer("/name/0", resolver=resolver)
+
+    def test_pointer_into_null(self):
+        resource = Resource.opaque(contents={"name": None})
+        resolver = Registry().resolver()
+        with pytest.raises(exceptions.PointerToNowhere):
+            resource.pointer("/name/foo", resolver=resolver)
+
     def test_root_pointer(self):
         contents = {"foo": "baz"}
         resource = Resource.opaque(contents=contents)
